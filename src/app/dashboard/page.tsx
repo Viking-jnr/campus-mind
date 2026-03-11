@@ -1,24 +1,15 @@
+'use client'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 import Assistant from '../components/assistant'
+import { ModeToggle } from '../components/modeToggle'
+import { AppSidebar } from '../components/sideBar'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '../../components/ui/sidebar'
 
+// Main dashboard content
 const Dashboard = () => {
-  return (
-    <div className='flex min-h-screen bg-gray-100'>
-        <aside className='w-64 bg-blue-900 text-white p-6'>
-            <h2 className='text-2xl font-bold mb-6'>Campus Mind</h2>
-            <nav className='space-y-4'>
-                <Link href="#" className='block hover:text-blue-300'>Home</Link>
-                <Link href="#" className='block hover:text-blue-300'>AI Assistant</Link>
-                <Link href="#" className='block hover:text-blue-300'>Notes Marketplace</Link>
-                <Link href="#" className='block hover:text-blue-300'>Study Groups</Link>
-                <Link href="#" className='block hover:text-blue-300'>Events</Link>
-                <Link href="#" className='block hover:text-blue-300'>Wallet</Link>
-                <Link href="#" className='block hover:text-blue-300'>Settings</Link>
-            </nav>
-        </aside>
-
-        <main className='flex-1 p-8'>
+    return (
+    <main className='flex-1 p-8'>
             <header className='flex justify-between items-center mb-8 border-b-6 pb-4'>
                 <h1 className='text-xl text-black font-semibold'>Welcome Back</h1>
                 <button className='bg-blue-900 text-white px-4 py-2 rounded'>Logout</button>
@@ -42,8 +33,24 @@ const Dashboard = () => {
                 </ul>
             </section>
         </main>
+    )
+}
+
+const DashboardPage = () => {
+    const [activeTab, setActiveTab] = useState('Dashboard')
+  return (
+    <div className='flex min-h-screen'>
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <SidebarTrigger className='ml-1 text-black' />
+                <div className="p-6">
+                    { activeTab === 'Dashboard' && <Dashboard />}
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     </div>
   )
 }
 
-export default Dashboard
+export default DashboardPage

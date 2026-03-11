@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link href="/output.css" rel="stylesheet"/>
       </head>
@@ -41,5 +41,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
+    
   );
 }
