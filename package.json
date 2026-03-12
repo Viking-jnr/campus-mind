@@ -10,6 +10,7 @@
     "build:css": "npx @tailwindcss/cli -i src/app/globals.css -o public/output.css"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@tailwindcss/cli": "^4.2.1",
     "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",

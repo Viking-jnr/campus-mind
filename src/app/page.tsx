@@ -31,6 +31,9 @@ export default function Home() {
   {/*Sign in with google function */}
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: "select_account"
+    })
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -39,7 +42,8 @@ export default function Home() {
         email: user.email,
         name: user.displayName,
       }, {merge: true });
-      router.push("/dashboard");
+      
+      router.push('/dashboard');
     }catch(err: any){
       setError("Google sign-in failed");
     }
@@ -68,7 +72,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side */}
-      <div className="w-1/2 flex flex-col items-center justify-center ">
+      <div className="w-1/2 flex flex-col items-center mt-10 ">
         <Image loading="eager" src={CampusMind} alt="Campus Mind" title="Campus Mind" width={300} height={300} />
         <h1 className="text-4xl font-bold mb-4 text-[#6366F1]">Campus Mind</h1>
         <p className="text-lg text-[#3B82F6]">

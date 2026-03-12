@@ -2,54 +2,65 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 import Assistant from '../components/assistant'
-import { ModeToggle } from '../components/modeToggle'
-import { AppSidebar } from '../components/sideBar'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '../../components/ui/sidebar'
+import { Brain, FileText, ShoppingCart, Users, NotebookTabs, Wallet, FileQuestion } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardDescription, CardHeader, CardTitle, CardFooter, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
-// Main dashboard content
-const Dashboard = () => {
-    return (
-    <main className='flex-1 p-8'>
-            <header className='flex justify-between items-center mb-8 border-b-6 pb-4'>
-                <h1 className='text-xl text-black font-semibold'>Welcome Back</h1>
-                <button className='bg-blue-900 text-white px-4 py-2 rounded'>Logout</button>
-            </header>
 
-            <section className='bg-white shadow rounded p-6 mb-8'>
-                <Assistant />
-            </section>
-            <section className='bg-white shadow rounded p-6 mb-8'>
-                <h2 className='text-lg text-gray-800 font-semibold mb-4'>Quick Actions</h2>
-                <button className='bg-blue-600 text-white px-4 py-2 rounded mr-5 cursor-pointer hover:bg-blue-700'>Find Notes</button>
-                <button className='bg-green-600 text-white px-4 py-2 rounded mr-5 cursor-pointer hover:bg-green-700'>Find Study Group</button>
-                <button className='bg-purple-600 text-white px-4 py-2 rounded mr-5 cursor-pointer hover:bg-purple-700'>Find Events</button>
-            </section>
-            <section className='bg-white shadow rounded p-6 mb-8'>
-                <h2 className='text-lg text-gray-800 font-semibold mb-4'>Agent Activity</h2>
-                <ul className='list-disc pl-6 space-y-2 text-black'>
-                    <li>Notes Agent Found Calculus Notes</li>
-                    <li>Quiz Agent Generated Practice Questions</li>
-                    <li>Study Agent matched 3 students</li>
-                </ul>
-            </section>
-        </main>
-    )
-}
 
 const DashboardPage = () => {
-    const [activeTab, setActiveTab] = useState('Dashboard')
+    const agents = [
+  { name: "Notes Finder", desc: "Find notes on any topic", icon: <NotebookTabs className="text-blue-500" />, status: "Active" },
+  { name: "Group Matcher", desc: "Find peers for your courses", icon: <Users className="text-green-500" />, status: "Active" },
+  { name: "Quiz Generator", desc: "Generate quizes from any notes", icon: <FileQuestion className="text-orange-500" />, status: "Experimental" },
+  { name: "Assignment Helper", desc: "Strategy and planning agent", icon: <Brain className="text-purple-500" />, status: "Active" },
+]
   return (
-    <div className='flex min-h-screen'>
-        <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-                <SidebarTrigger className='ml-1 text-black' />
-                <div className="p-6">
-                    { activeTab === 'Dashboard' && <Dashboard />}
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
-    </div>
+    <div className="p-6 space-y-6">
+        <div className="flex justify-between items-end">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight text-primary">Campus Mind Hub</h1>
+                <p className="text-muted-foreground">Select an agent to start your session.</p>
+            </div>
+            <Badge variant="outline" className="px-3 py-1 border-blue-500 text-blue-600">
+                <Wallet className="mr-2 h-4 w-4" /> Hedera Connected
+            </Badge>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {agents.map((agent) =>(
+                <Card key={agent.name} className="hover:border-blue-500 transition-colors cursor-pointer ">
+                    <CardHeader>
+                        <div className="flex justify-between">
+                        <div className='p-2 w-fit rounded-lg bg-slate-100 group-hover:bg-blue-50 transition-colors'>
+                            {agent.icon}
+                        </div>
+                        <Badge variant="outline" className={agent.status === "Active" ? "bg-green-200 text-black" : "bg-red-200 text-black"}>
+                            {agent.status} 
+                        </Badge>
+                        </div>
+                        <CardTitle className="mt-2 ml-2">{agent.name} </CardTitle>
+                        <CardDescription>{agent.desc} </CardDescription>
+                    </CardHeader>
+                    <CardFooter>
+                        <Button variant="secondary" className="w-full cursor-pointer">Launch Agent</Button>
+                    </CardFooter>
+                    
+                </Card>
+            ))}
+        </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>Hedera Network Activity for Notes and Tutoring</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="text-sm text-muted-foreground">No recent Transactions Found</div>
+            </CardContent>
+        </Card>
+
+        </div>
   )
 }
 

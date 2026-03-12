@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image"
 import CampusMind from "../assets/CampusMind.png"
 import {
@@ -5,6 +6,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
@@ -15,8 +17,38 @@ import Link from "next/link"
 import { ActivitySquare, ChevronUp, GroupIcon, HelpCircle, LayoutDashboard, LogOut, LucideSearch, NotebookTabs, Settings, User, Wallet } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { useEffect, useState } from "react"
+import { auth, db } from "../../lib/firebase"
+import { onAuthStateChanged, signOut } from "firebase/auth"
+import { useRouter } from "next/navigation"
+import { ModeToggle } from "./modeToggle"
 
-export function AppSidebar() {
+export function AppSidebar () {
+  const [user, setUser] = useState("");
+  const [email, setEmail] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser){
+        setUser(currentUser.displayName || "User");
+        setEmail(currentUser.email || "user@gmail.com");
+      }else {
+        setUser("");
+        setEmail("");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try{
+      await signOut(auth);
+      router.push("/");
+    }catch(error){
+      console.error("Error logging out: ", error);
+    }
+  }
   return (
     <Sidebar>
       <TooltipProvider>
@@ -39,7 +71,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="AI Assistant">
-                  <Link href="/dashboard">
+                  <Link href="/dashboard/assistant">
                     <HelpCircle />
                     <span>AI Assistant</span>
                   </Link>
@@ -77,6 +109,13 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Settings">
                   <Link href="">
@@ -84,6 +123,9 @@ export function AppSidebar() {
                     <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <ModeToggle />
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -97,8 +139,8 @@ export function AppSidebar() {
                 <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
                   <User className="h-4 w-4 mr-2" />
                   <div className="flex flex-col gap-0.5 text-left text-sm">
-                    <span className="font-semibold text-xs leading-none">John Doe</span>
-                    <span className="text-[10px] text-muted-foreground">john@example.com</span>
+                    <span className="font-semibold text-xs leading-none">{user}</span>
+                    <span className="text-[10px] text-muted-foreground">{email}</span>
                   </div>
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
@@ -108,7 +150,7 @@ export function AppSidebar() {
                   <User className="h-4 w-4" />
                   <span>Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut />
                   <span>Logout</span>
                 </DropdownMenuItem>
