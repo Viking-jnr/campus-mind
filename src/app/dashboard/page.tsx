@@ -1,21 +1,23 @@
 'use client'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import Assistant from '../components/assistant'
 import { Brain, FileText, ShoppingCart, Users, NotebookTabs, Wallet, FileQuestion } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardHeader, CardTitle, CardFooter, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 
 
 const DashboardPage = () => {
     const agents = [
   { name: "Notes Finder", desc: "Find notes on any topic", icon: <NotebookTabs className="text-blue-500" />, status: "Active" },
-  { name: "Group Matcher", desc: "Find peers for your courses", icon: <Users className="text-green-500" />, status: "Active" },
-  { name: "Quiz Generator", desc: "Generate quizes from any notes", icon: <FileQuestion className="text-orange-500" />, status: "Experimental" },
+  { name: "Notes Summarizer", desc: "Turn long notes into key points", icon: <FileText className="text-yellow-500" />, status: "Active" },
+  { name: "Group Matcher", desc: "Find peers for your courses", icon: <Users className="text-green-500" />, status: "Experimental" },
+  { name: "Quiz Generator", desc: "Generate quizes from any notes", icon: <FileQuestion className="text-orange-500" />, status: "Active" },
   { name: "Assignment Helper", desc: "Strategy and planning agent", icon: <Brain className="text-purple-500" />, status: "Active" },
 ]
+const router = useRouter();
   return (
     <div className="p-6 space-y-6">
         <div className="flex justify-between items-end">
@@ -43,7 +45,7 @@ const DashboardPage = () => {
                         <CardDescription>{agent.desc} </CardDescription>
                     </CardHeader>
                     <CardFooter>
-                        <Button variant="secondary" className="w-full cursor-pointer">Launch Agent</Button>
+                        <Button onClick={() => router.push(`/dashboard/assistant?agent=${agent.name.toLowerCase().replace(/\s+/g, '-')}`)} variant="secondary" className="w-full cursor-pointer">Launch Agent </Button>
                     </CardFooter>
                     
                 </Card>
