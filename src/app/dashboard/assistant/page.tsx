@@ -325,7 +325,7 @@ const Assistant = () => {
                     {/* Render marketplace card if in MARKETPLACE_MODE and has marketPlaceData */}
                     { message.mode === 'notes' && message.marketPlaceData && 
                     <div className='grid gap-2 md:grid-cols-2   '> 
-                      {message.marketPlaceData.map((item: MarketPlaceItem) => (
+                      {message.marketPlaceData.map((item: any) => (
                       <MarketplaceCard key={item.id} marketPlaceData={item} onBuy={handleBuy} />
                       
     
