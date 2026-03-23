@@ -41,12 +41,34 @@ export const mockQuizMessage = {
   content: mockQuizData.quizTitle,
   mode: "quiz",
   quizData: mockQuizData.questions,
-   // Keep false for testing so you don't have to wait for typing
+  marketPlaceData: null
 };
 
 export const mockNotesData = {
-  title: "Lecture 1: Introduction to Software Engineering",
-  author: "Professor Smith",
-  priceHBar: 2.5,
-  description: "These notes cover the basics of software engineering, including the software development lifecycle, key principles, and common methodologies. They provide a comprehensive overview for students new to the field."
+  content: `Here are some of the notes I found on the topic you mentioned. You can click the "Buy with HashPack" button to purchase access to these notes using your Hedera HashPack wallet. Once you buy them, they will be added to your library for easy access during your study sessions!`,
+  notes: [
+    {
+      id: 1,
+      title: "Lecture 1: Introduction to Software Engineering",
+      author: "Professor Smith",
+      priceHbar: 2.5,
+      description: "These notes cover the basics of software engineering, including the software development lifecycle, key principles, and common methodologies. They provide a comprehensive overview for students new to the field."
+    },
+    {
+      id: 2,
+      title: "Lecture 2: Object-Oriented Design Principles",
+      author: "Mary Johnson",
+      priceHbar: 0.5,
+      description: "These notes explore the core concepts of object-oriented design, including encapsulation, inheritance, and polymorphism. They provide practical examples and exercises to reinforce understanding."
+    }
+  ]
+};
+
+export const mockNotesMessage = {
+  id: 23328,
+  role: "assistant",
+  content: `${mockNotesData.content}`,
+  mode: "notes",
+  quizData: null,
+  marketPlaceData: mockNotesData.notes
 }

@@ -20,7 +20,7 @@ export function ModeToggle() {
         <Button variant="ghost" size="icon" className="cursor-pointer">
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 text-black rotate-0 color-black transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] text-white scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only ">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

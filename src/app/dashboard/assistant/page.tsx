@@ -9,10 +9,14 @@ import { Button } from '@/components/ui/button';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';
 import ChatInput from './chatInput';
-import { mockNotesData, mockQuizMessage } from '@/app/utils/MockData';
+import {  mockNotesMessage, mockQuizMessage } from '@/app/utils/MockData';
 import QuizCard from '@/app/components/QuizCard';
+import { MarketplaceCard } from '@/app/components/MarketPlaceCard';
+import { useSearchParams } from 'next/navigation';
 
 const Assistant = () => {
+  const clickedAgent = useSearchParams().get("agent");
+  const [isUnlocked, setIsUnlocked] = useState(false);
   interface Message {
     id: number;
     role: 'user' | 'assistant';
@@ -20,15 +24,18 @@ const Assistant = () => {
     mode: 'notes' | 'quiz' | 'group' | 'assignment' | 'assistant' | 'user';
     quizData?: any;
     fileData?:any;
+    marketPlaceData?:any;
     metadata?: any;
   }
   const scrollRef = useRef<HTMLDivElement>(null);
   let startMessage: Message = {
     id: Date.now(),
     role: 'assistant',
-    content: "Hello! I'm your Campus Assistant. How can I help you today?",
+    content: `Hi there! I'm your CampusMind assistant. How can I help you today? You can ask me for notes, quizzes, study partners, and more!
+    ${clickedAgent ? `By the way, I see you clicked on the ${clickedAgent} agent. How can I assist you with that?` : ""}`,
     mode: 'assistant',
     quizData: null,
+    marketPlaceData: null,
   }
   const [messages, setMessages] = useState([startMessage]);
 
@@ -37,12 +44,13 @@ const Assistant = () => {
 
   const handleSend = async (input: string, file: { name: string; type: string; data: string } | null) => {
 
-    const userMessage:Message = { id: Date.now(), role: 'user', content: input, mode: 'user', quizData: null, fileData: file };
+    const userMessage:Message = { id: Date.now(), role: 'user', content: input, mode: 'user', quizData: null,marketPlaceData: null, fileData: file };
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
-   {/* 
+   {/*
     if (input.toLowerCase().includes("notes") || input.toLowerCase().includes("summary")) {
-      setMessages((prev) => [...prev, mockNotesData]);
+      setMessages((prev) => [...prev, mockNotesMessage]);
+      console.log("Rendering MarketplaceCard with data: ", mockNotesMessage.marketPlaceData)
       setIsLoading(false);
       return;
     }else if (input.toLowerCase().includes("quiz") || input.toLowerCase().includes("question") || input.toLowerCase().includes("test") || input.toLowerCase().includes("questions")) {
@@ -54,8 +62,9 @@ const Assistant = () => {
       return;
     }else if (input.toLowerCase().includes("assignment") || input.toLowerCase().includes("study")) {
       setAgentType("assignment");
-    }*/}
-
+    }
+      */}
+    {/*Chat API call */}
     try{
       const response = await fetch('/api/hello', {
         method: 'POST',
@@ -70,9 +79,11 @@ const Assistant = () => {
 
       const data = await response.json();
       const rawText = data.text;
+      
 
       let messageMode: Message['mode'] = 'assistant';
       let quizData = null;
+      let marketPlaceData = null;
       let displayedContent = rawText;
 
       if (rawText.includes('[QUIZ_MODE]')) {
@@ -95,12 +106,78 @@ const Assistant = () => {
           messageMode = 'assistant';
         }
       }
+      if (rawText.includes('[MARKETPLACE_MODE]')){
+        try{
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+          if (jsonMatch){
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (parsed && parsed.notes && Array.isArray(parsed.notes)){
+              displayedContent = parsed.content || "Here are some marketplace items I found:";
+              marketPlaceData = parsed.notes;
+              messageMode = 'notes';
+            }
+          }
+        }catch(e){
+          console.error("Failed to parse marketplace JSON: ", e);
+          displayedContent = "Sorry, I had trouble fetching the marketplace item. Please try again.";
+          messageMode = 'assistant';
+        }
+      }
+      if (rawText.includes('[ACTION_TRIGGER]')){
+        try{
+          const jsonMatch = rawText.match(/\[ACTION_TRIGGER\]:\s*(\{.*\})/);
+          if (jsonMatch){
+            const actionData = JSON.parse(jsonMatch[1]);
+            
+            if (actionData.type === "HBAR_TRANSFER"){
+              console.log(`Triggering HBAR transfer of ${actionData.amount} to ${actionData.to}`);
+
+              const txResponse = await fetch('/api/agent/pay', {
+                method: 'POST',
+                headers: {
+                  "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                  to: actionData.to,
+                  amount: actionData.amount,
+                  memo: `CampusMind: ${actionData.noteId || 'Service Fee'}`
+                })
+              })
+              const txResult = await txResponse.json();
+              if (txResponse.ok){
+                displayedContent = `Treasury Agent: Payment successful! Transaction ID: ${txResult.txId}. You can view it on HashScan: ${txResult.hashScan}`;
+                setIsUnlocked(true);
+              }
+            }
+            if (actionData.type === 'NOTES_SEARCH'){
+              const noteRes = await fetch('/api/notes/search', {
+                method: 'GET',
+                headers: {
+                  'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                  topic: actionData.topic
+                })
+              });
+              const result = await noteRes.json();
+              if (result.ok){
+                displayedContent = `Notes Agent: Here are the notes I found on ${actionData.topic}. Do you wish to purchase any of them?`
+              }
+            }
+          }
+        } catch(e){
+          console.error("Failed to parse action trigger JSON: ", e);
+          displayedContent = "Sorry, I had trouble processing the action. Please try again.";
+        }
+      }
+
       const assistantMessage: Message = {
         role: 'assistant',
         content: displayedContent,
         id: Date.now() + 1,
         mode: messageMode,
         quizData: quizData,
+        marketPlaceData: marketPlaceData,
 
       }
       setMessages((prev) => [...prev, assistantMessage]);
@@ -168,11 +245,13 @@ const Assistant = () => {
     const feedbackPrompt = `I completed the quiz with a score of ${score} out of ${total}. Can you give me a quick summary of what I should study more based on this? `;
     {/*handleSend(feedbackPrompt);*/}
   }
+  const handleBuy = () => {
+    alert("Buy functionality not implemented yet.");
+  }
 
   useEffect(() => {
     const savedMessages = localStorage.getItem('chat-messages');
     if (savedMessages) {
-      console.log("Loaded messages from localStorage: ", savedMessages);
       try {
         setMessages(JSON.parse(savedMessages));
       }catch(e){
@@ -211,9 +290,19 @@ const Assistant = () => {
                 index === messages.length - 1 ? (
                   <div className='flex gap-4 flex-col w-full'>
                     <TypeWriter content={message.content} />
+                    {/* Render quiz if response is in QUIZ_MODE and has quizData */}
                       { message.mode === 'quiz' && message.quizData && (
                     <QuizCard questions={message.quizData} onComplete={handleQuizCompletion} />
                     )}
+                    {/* Render marketplace card if in MARKETPLACE_MODE and has marketPlaceData */}
+                    { message.mode === 'notes' && message.marketPlaceData && 
+                    <div className='grid gap-2 md:grid-cols-2   '> 
+                      {message.marketPlaceData.map((item) => (
+                      <MarketplaceCard key={item.id} marketPlaceData={item} onBuy={handleBuy} />
+                      
+    
+                    ) )}
+                    </div> }
                   </div>
                   
                 ) : (

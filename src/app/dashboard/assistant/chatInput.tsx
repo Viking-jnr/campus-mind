@@ -1,6 +1,10 @@
 'use client'
+import UploadNoteModal from '@/app/components/UploadNotes';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Paperclip, PlusCircle, Send } from 'lucide-react';
 import { useRef, useState } from 'react'
 
 const ChatInput = ({onSend}: {onSend: (message: string, file: { name: string; type: string; data: string } | null) => void}) => {
@@ -63,10 +67,28 @@ const ChatInput = ({onSend}: {onSend: (message: string, file: { name: string; ty
                 </div>
             )}
         <div className='mt-4 flex flex-row items-center gap-2 bg-secondary rounded-xl p-4 shadow-sm pr-4'>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="default" size="icon" className='shrink-0 hover:bg-blue-700'>
+                        <Paperclip size={20} />
+                        <input ref={fileRef} type='file' className='hidden' onChange={handleFileChange} />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='center' side='top' className='w-50'>
+                    <DropdownMenuItem onClick={handleClick}>
+                        <Paperclip className='w-4 h-4 mr-2' />
+                        Attach file
+                    </DropdownMenuItem>
+                    <UploadNoteModal />
+                    
+                </DropdownMenuContent>
+            </DropdownMenu>
+            {/*
             <Button onClick={handleClick} variant="default" size="icon" className='shrink-0 hover:bg-blue-700'>
                 <Paperclip size={20} />
                 <input ref={fileRef} type='file' className='hidden' onChange={handleFileChange} />
             </Button>
+            */}
             
             <textarea 
                 value={text}

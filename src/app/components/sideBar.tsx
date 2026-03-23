@@ -79,7 +79,7 @@ export function AppSidebar () {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Notes MarketPlace">
-                  <Link href="/dashboard">
+                  <Link href="/dashboard/notesMarketPlace">
                     <NotebookTabs />
                     <span>Notes MarketPlace</span>
                   </Link>
@@ -103,7 +103,7 @@ export function AppSidebar () {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Wallet">
-                  <Link href="">
+                  <Link href="/dashboard/wallet">
                     <Wallet />
                     <span>Wallet</span>
                   </Link>
