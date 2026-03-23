@@ -24,9 +24,20 @@ const Assistant = () => {
     mode: 'notes' | 'quiz' | 'group' | 'assignment' | 'assistant' | 'user';
     quizData?: any;
     fileData?:any;
-    marketPlaceData?:any;
-    metadata?: any;
+    marketPlaceData?: MarketPlaceItem[] | null;
+    metadata?: {
+      type: 'quiz' | 'notes' | 'general';
+      data: any;
+    };
   }
+  interface MarketPlaceItem {
+  id: number;
+  title: string;
+  author: string;
+  priceHbar: number;
+  description: string;
+  fileURL: string;
+}
   const scrollRef = useRef<HTMLDivElement>(null);
   let startMessage: Message = {
     id: Date.now(),
@@ -150,19 +161,36 @@ const Assistant = () => {
               }
             }
             if (actionData.type === 'NOTES_SEARCH'){
-              const noteRes = await fetch('/api/notes/search', {
+              const noteRes = await fetch(`/api/notes/search?topic=${encodeURIComponent(actionData.topic)}`, {
                 method: 'GET',
-                headers: {
-                  'content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                  topic: actionData.topic
-                })
               });
-              const result = await noteRes.json();
-              if (result.ok){
-                displayedContent = `Notes Agent: Here are the notes I found on ${actionData.topic}. Do you wish to purchase any of them?`
-              }
+              if (noteRes.ok) {
+  const result = await noteRes.json();
+  
+  // NORMALIZE: Ensure the properties match your Card component's needs
+  const sanitizedNotes = result.map((note: any) => ({
+    id: note.id,
+    title: note.title || "Untitled Note",
+    author: note.author || "Unknown Author",
+    priceHBar: note.price || 5, // Default price if missing
+    fileUrl: note.fileURL, // Mapping 'fileURL' from console to 'fileUrl'
+    topic: note.topic
+  }));
+
+  const assistantMsg: Message = {
+    id: Date.now() + 3,
+    mode: 'notes',
+    role: "assistant",
+    content: `Library Agent: I found this notes for you.`,
+    metadata: {
+      type: 'notes',
+      data: sanitizedNotes // Use the sanitized version!
+    }
+  };
+
+  setMessages((prev) => [...prev, assistantMsg]);
+}
+
             }
           }
         } catch(e){
@@ -297,12 +325,20 @@ const Assistant = () => {
                     {/* Render marketplace card if in MARKETPLACE_MODE and has marketPlaceData */}
                     { message.mode === 'notes' && message.marketPlaceData && 
                     <div className='grid gap-2 md:grid-cols-2   '> 
-                      {message.marketPlaceData.map((item) => (
+                      {message.marketPlaceData.map((item: MarketPlaceItem) => (
                       <MarketplaceCard key={item.id} marketPlaceData={item} onBuy={handleBuy} />
                       
     
                     ) )}
                     </div> }
+                    {message.metadata?.type === 'notes' && (
+                      <div className='grid gap-2 md:grid-cols-2   '> 
+                        {message.metadata.data.map((item: any) => (
+                          <MarketplaceCard key={item.id} marketPlaceData={item} onBuy={handleBuy} />
+                        ))}
+                      </div>
+
+                    )}
                   </div>
                   
                 ) : (
