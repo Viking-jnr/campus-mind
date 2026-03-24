@@ -121,7 +121,7 @@ Campus Mind is composed of **four specialized agents** that communicate, delegat
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/Viking-jnr/campus-mind
+git clone https://github.com/Viking-jnr/campus-mind.git
 cd campus-mind
 ```
 
